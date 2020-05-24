@@ -14,12 +14,13 @@ python3 video_capture.py --view
 
 import argparse
 import configparser
-import cv2
 import os
 import select
 import sys
 import time
 from datetime import datetime, timezone
+
+import cv2
 
 # Parse videocapture options
 parser = argparse.ArgumentParser(
@@ -36,12 +37,12 @@ args = parser.parse_args()
 # Parse output files
 if args.output and os.path.isdir(os.path.dirname(args.output)):
     vid_file = args.output
-    print("Video will be saved to the specified output file: {0}".format(os.path.basename(vid_file)))
+    print("[INFO] Video will be saved to the specified output file: {0}".format(vid_file))
 else:
     vid_file = None
-if args.tsfile and os.path.isdir(os.path.basename(args.tsfile)):
+if args.tsfile and os.path.isdir(os.path.dirname(args.tsfile)):
     ts_file = args.tsfile
-    print("Frame timestamps will be saved to the specified output file: {0}".format(os.path.basename(ts_file)))
+    print("[INFO] Frame timestamps will be saved to the specified output file: {0}".format(ts_file))
 else:
     ts_file = None
 
@@ -50,11 +51,11 @@ abs_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(abs_path, "../../config/vidcap_config.ini")
 try:
     with open(config_file) as f1:
-        print("Loading config file: {0}".format(os.path.basename(config_file)))
+        print("[INFO] Loading config file: {0}".format(config_file))
         config = configparser.ConfigParser()
         config.read_file(f1)
 except IOError:
-    print("Config file not found.")
+    print("[ERROR] Config file not found.")
     sys.exit(1)
 
 # Load and initialize video properties
@@ -76,7 +77,7 @@ def stream_video():
     """
     Play the video stream without writing it to file.
     """
-    print("Streaming video from /dev/video{0} in {1}x{2} at {3}fps".format(
+    print("[INFO] Streaming video from /dev/video{0} in {1}x{2} at {3}fps".format(
         source, int(stream.get(3)), int(stream.get(4)), int(stream.get(5))))
 
     while stream.isOpened():
@@ -113,7 +114,7 @@ def write_video():
     fourcc = cv2.VideoWriter_fourcc(*'{0}'.format(codec))
     writer = cv2.VideoWriter(vid_out, fourcc, fps, (width, height))
     f2 = open(ts_out, 'w+')
-    print("Capturing video from /dev/video{0} in {1}x{2} at {3}fps".format(
+    print("[INFO] Capturing video from /dev/video{0} in {1}x{2} at {3}fps".format(
         source, int(stream.get(3)), int(stream.get(4)), int(stream.get(5))))
     print("Press <Enter> to exit.")
 
@@ -138,7 +139,7 @@ def write_video():
     hrs = int(diff/3600)
     mins = int((diff % 3600)/60)
     secs = int((diff % 3600) % 60)
-    print("Captured video for {0}hrs {1}mins {2}secs".format(hrs, mins, secs))
+    print("[INFO] Captured video for {0}hrs {1}mins {2}secs".format(hrs, mins, secs))
 
 
 if args.view:

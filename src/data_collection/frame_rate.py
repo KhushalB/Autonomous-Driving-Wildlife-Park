@@ -9,8 +9,9 @@ python3 frame_extract.py -i timestamps-file.txt
 """
 
 import argparse
-import numpy as np
 import sys
+
+import numpy as np
 
 # Parse input file
 parser = argparse.ArgumentParser(
@@ -25,13 +26,13 @@ ts_file = args.input
 try:
     f = open(ts_file, 'r')
 except IOError:
-    print("Input file not found. Wrong filename or filepath.")
+    print("[ERROR] Input file not found. Wrong filename or filepath.")
     sys.exit(1)
 
 try:
     lines = f.readlines()
 except UnicodeDecodeError:
-    print("Invalid filetype. Input file should be a txt file or similar with 'utf-8' encoding.")
+    print("[ERROR] Invalid filetype. Input file should be a txt file or similar with 'utf-8' encoding.")
     sys.exit(1)
 no_of_lines = len(lines)
 diff = []
@@ -47,8 +48,8 @@ hrs = int(total_diff/3600)
 mins = int((total_diff % 3600)/60)
 secs = int((total_diff % 3600) % 60)
 
-print("Video captured for: {0}hrs {1}mins {2}secs".format(hrs, mins, secs))
-print("No. of frames: {0}".format(no_of_lines))
-print("Average delay between frames: {0}secs".format(ave_delay))
-print("Frame rate (calculated as no. of frames/total capture time): {0}".format(no_of_lines/total_diff))
-print("Frame rate (calculated as 1/average delay between frames): {0}".format(1/ave_delay))
+print("[INFO] Video captured for: {0}hrs {1}mins {2}secs".format(hrs, mins, secs))
+print("[INFO] No. of frames: {0}".format(no_of_lines))
+print("[INFO] Average delay between frames: {0}secs".format(ave_delay))
+print("[INFO] Frame rate (calculated as no. of frames/total capture time): {0}".format(no_of_lines/total_diff))
+print("[INFO] Frame rate (calculated as 1/average delay between frames): {0}".format(1/ave_delay))

@@ -10,8 +10,9 @@ python3 can_extract.py -i canlogfile.log
 
 import argparse
 import os
-import pandas as pd
 import sys
+
+import pandas as pd
 
 # Parse input file
 parser = argparse.ArgumentParser(
@@ -27,22 +28,23 @@ args = parser.parse_args()
 can_file = args.input
 try:
     df = pd.read_csv(can_file, delimiter=" |#", engine='python', header=None)
+    print("[INFO] Found CAN log file: {0}".format(can_file))
 except IOError:
-    print("CAN log file not found. Wrong filename or filepath.")
+    print("[ERROR] CAN log file not found. Wrong filename or filepath.")
     sys.exit(1)
 
 # Get output file
 if args.output and os.path.isdir(os.path.dirname(args.output)):
     out_file = args.output
-    print("Extracted params will be saved to the specified output file: {0}".format(os.path.basename(out_file)))
+    print("[INFO] Extracted params will be saved to the specified output file: {0}".format(out_file))
 else:
     out_file = os.path.splitext(can_file)[0]
-    print("Output file not given or wrong filepath. Extracted params will be saved to: {0}".format(
-        os.path.basename(out_file)))
+    print("[INFO] Output file not given or wrong filepath. Extracted params will be saved to: {0}_canlog.csv".format(
+        out_file))
 
-can_data = {"steer-angle": [], "steer-torque1": [], "steer-torque2": [], "steer-torque3": [], "steer_ts": [],
-            "speed": [], "speed_ts": [], "acc": [], "acc_ts": [], "brake": [], "brake_ts": [], "ice-rpm": [],
-            "ice_ts": [], "tire1-speed": [], "tire2-speed": [], "tire3-speed": [], "tire4-speed": [], "tire_ts": []}
+can_data = {"steer_angle": [], "steer_torque1": [], "steer_torque2": [], "steer_torque3": [], "steer_ts": [],
+            "speed": [], "speed_ts": [], "acc": [], "acc_ts": [], "brake": [], "brake_ts": [], "ice_rpm": [],
+            "ice_ts": [], "tire1_speed": [], "tire2_speed": [], "tire3_speed": [], "tire4_speed": [], "tire_ts": []}
 
 
 def extract_data(row):
@@ -58,10 +60,10 @@ def extract_data(row):
         st_q1 = int(data[8:10], 16)
         st_q2 = int(data[10:12], 16)
         st_q3 = int(data[12:14], 16)
-        can_data["steer-angle"].append(st_angle)
-        can_data["steer-torque1"].append(st_q1)
-        can_data["steer-torque2"].append(st_q2)
-        can_data["steer-torque3"].append(st_q3)
+        can_data["steer_angle"].append(st_angle)
+        can_data["steer_torque1"].append(st_q1)
+        can_data["steer_torque2"].append(st_q2)
+        can_data["steer_torque3"].append(st_q3)
         can_data["steer_ts"].append(timestamp)
 
     elif row[2] == "0B4":
@@ -81,7 +83,7 @@ def extract_data(row):
 
     elif row[2] == "1C4":
         ice = int(data[0:4], 16)
-        can_data["ice-rpm"].append(ice)
+        can_data["ice_rpm"].append(ice)
         can_data["ice_ts"].append(timestamp)
 
     elif row[2] == "0AA":
@@ -89,13 +91,14 @@ def extract_data(row):
         tire2 = int(data[4:8], 16)
         tire3 = int(data[8:12], 16)
         tire4 = int(data[12:-1], 16)
-        can_data["tire1-speed"].append(tire1)
-        can_data["tire2-speed"].append(tire2)
-        can_data["tire3-speed"].append(tire3)
-        can_data["tire4-speed"].append(tire4)
+        can_data["tire1_speed"].append(tire1)
+        can_data["tire2_speed"].append(tire2)
+        can_data["tire3_speed"].append(tire3)
+        can_data["tire4_speed"].append(tire4)
         can_data["tire_ts"].append(timestamp)
 
 
 df.apply(extract_data, axis=1)
-can_df = pd.DataFrame.from_dict(can_data, orient='index').T  # orient on index and transpose since columns have different lengths
-can_df.to_csv("{0}_canlog.csv".format(out_file), index=False)
+df_can = pd.DataFrame.from_dict(can_data, orient='index').T  # orient on index and transpose since columns have different lengths
+df_can.to_csv("{0}_canlog.csv".format(out_file), index=False)
+print("[INFO] Finished extracting {0} params.".format(len(df.index)))

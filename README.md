@@ -47,9 +47,10 @@ etc. were removed before extracting the frames. Segments containing overtaking a
 conditions were also removed as they presented navigation challenges beyond the scope of this project. A large portion 
 of the data contains driving on straight road sections rather than around turns. To remove this skewness in data, long 
 straight road sections were also removed from the video, and data augmentation was used to obtain more images of driving
-around turns.
+around turns. The steering angles are also scaled by a fixed value of 65 (which is approximately 90 degrees) to ensure
+they mostly lie between -1 and 1.
 
-*Data augmentation: To be updated soon*
+Data augmentation techniques applied include horizontal flipping and random brightness change.
 
 The driving signals were decoded and extracted from the raw CAN logs, and the timestamp of each extracted video frame 
 was matched to the closest timestamp of each driving parameter to create each data sample.
@@ -63,15 +64,23 @@ was matched to the closest timestamp of each driving parameter to create each da
 *Fig: Sample images from the dataset*
 
 ## Training
-*To be updated soon.*
+The data was trained using the Nvidia Dave2 model shown below:
+
+![nvidia dave2 model](images/dave2.png)
+
+In addition, dropout layers were added after each fully connected layer in the above network. ELU was used as the 
+activation function between the layers, and tanh at the output neuron to keep the steering angle predictions between
+-1 and 1. Adam optimizer with a learning rate of 1e-4 was used, and an MSE loss function.
 
 ## Usage
 ### Dependecies
-* OpenCV-python
-* NumPy
-* Pandas
-* xrdl
-* Keras
+* tensorflow-gpu=2.2.0
+* keras=2.3.1
+* opencv-contrib-python=4.2.0
+* numpy=1.18.4
+* pandas=1.0.1
+* matplotlib=3.1.3
+* seaborn=0.10.0
 
 ### Project structure
 To allow the data collection/preparation scripts to identify and load some data files automatically, some naming 
@@ -86,7 +95,7 @@ conventions have been used:
 `example-drive_canlog.csv`
 * The dataset is saved in `data/datasets` as `example-drive.csv`
 
-All the scripts used in the data collection and dataset preparation can be found in `src/data-collection`:
+All the scripts used in the data collection and dataset preparation can be found in `src/data_collection`:
 * `video_capture.py` was used to record and save the video with OpenCV. The video properties can be set in 
 `config/vidcap_config.ini`.
 * `frame_rate.py` is used to check properties of the recorded video such as video length, frame rate and number of frames.
@@ -94,15 +103,20 @@ All the scripts used in the data collection and dataset preparation can be found
 * `build_dataset.py` is used to extract and process the required frames from the video and match their timestamps to the
 driving parameters to create the dataset. Frame extraction parameters can be set in `config/dataset_config.ini`.
 
-Training:
-* *To be updated soon*
+The training code is located in `src/training`:
+* `explore_data.ipynb` is a Jupyter Notebook that can be used to explore the data.
+* `model_def.py` is used to create the model class to be used for training.
+* `augment_data.py` contains utility functions for loading, preprocessing and augmenting the images.
+* `train.py` is used to train and save the model in the `src/training/models/` directory. The training parameters can be
+set in `config/train_config.ini`.
+* `predict.py` is used to make predictions on the test set and visualize them.
 
 ## Hardware used
 For data collection:
 * Raspberry Pi 3B+
 * PiCAN2 hat
 * Apeman A80 camera
-* Laptop computer
+* Laptop
 
 For training:
 * Ubuntu 18.04, Intel Core i5-8300H CPU @ 2.3GHz x 8, 8GB System RAM

@@ -1,3 +1,6 @@
 .idea/
 help/
 data/*.xlsx
+src/training/__pycache__/
+src/training/.ipynb_checkpoints/
+src/training/explore_data.py
