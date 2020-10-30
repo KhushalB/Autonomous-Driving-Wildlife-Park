@@ -128,5 +128,5 @@ It was conducted as part of the [AI4D initiative](https://ai4d.ai/) by [IDRC, Ca
 
 ## Links
 * Dataset: To be published
-* AI4D blog: https://ai4d.ai/autonomous-driving/
+* AI4D blog: https://www.k4all.org/2020/10/ai4d-blog-series-khushal-brahmbhatt/
 * AfricaNLP workshop presentation at ICLR 2020: https://africanlp-workshop.github.io/ai4dev.html
